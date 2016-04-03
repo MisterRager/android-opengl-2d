@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="GL_VIRTUAL_WIDTH" format="float" type="dimen">200.0</item>
+    <item name="GL_VIRTUAL_HEIGHT" format="float" type="dimen">80.0</item>
+
+
+</resources>
