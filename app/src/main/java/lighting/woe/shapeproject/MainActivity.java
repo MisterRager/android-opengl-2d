@@ -13,9 +13,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.TypedValue;
 
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
-
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -54,25 +51,17 @@ public class MainActivity extends AppCompatActivity {
                 Log.v(TAG, "Doing shape adding task");
 
                 mRenderer.addShape(new Quad(
-                        new PointF(0, 0),
-                        new PointF(virtualWidth, 0),
-                        new PointF(virtualWidth, virtualHeight),
                         new PointF(0, virtualHeight),
+                        new PointF(0, 0),
+                        new PointF(virtualWidth, virtualHeight),
+                        new PointF(virtualWidth, 0),
                         Color.RED));
 
-                ByteBuffer bb = ByteBuffer.allocateDirect(6 * 4);
-                FloatBuffer uvBuffer = bb.asFloatBuffer();
-                uvBuffer.put(new float[]{
-                        0, 0,
-                        0.5f, 1f,
-                        1f, 0,});
-                uvBuffer.position(0);
-
-                mRenderer.addShape(new TexturedTriangle(
+                mRenderer.addShape(new Triangle(
                         new PointF(0, 0),
                         new PointF(virtualWidth / 2, virtualHeight),
                         new PointF(virtualWidth, 0),
-                        0, uvBuffer));
+                        Color.argb(255, 200, 150, 0)));
             }
         });
 

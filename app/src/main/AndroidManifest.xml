@@ -10,7 +10,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
-            android:configChanges="density|navigation|keyboard|keyboardHidden">
+            android:configChanges="navigation|keyboard|keyboardHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

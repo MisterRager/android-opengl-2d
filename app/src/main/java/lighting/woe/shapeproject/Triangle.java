@@ -10,7 +10,6 @@ import java.nio.FloatBuffer;
 
 public class Triangle implements GLShape{
 
-    private final float[] mTriangleCoords;
     private final float[] mColor;
     private FloatBuffer vertexBuffer;
 
@@ -37,7 +36,7 @@ public class Triangle implements GLShape{
         // initialize solid_vertex byte buffer for shape coordinates
         ByteBuffer bb = ByteBuffer.allocateDirect(
                 // (number of coordinate values * 4 bytes per float)
-                triangleCoords.length * 4);
+                triangleCoords.length * Constants.BYTES_PER_FLOAT);
         // use the device hardware's native byte order
         bb.order(ByteOrder.nativeOrder());
 
@@ -48,7 +47,6 @@ public class Triangle implements GLShape{
         // set the buffer to read the first coordinate
         vertexBuffer.position(0);
 
-        mTriangleCoords = triangleCoords;
         mColor = color;
     }
 
@@ -64,12 +62,12 @@ public class Triangle implements GLShape{
         GLES20.glVertexAttribPointer(
                 positionHandle, COORDS_PER_VERTEX,
                 GLES20.GL_FLOAT, false,
-                COORDS_PER_VERTEX * 4,
+                COORDS_PER_VERTEX * Constants.BYTES_PER_FLOAT,
                 vertexBuffer);
 
         int colorHandle = GLES20.glGetUniformLocation(program, "vColor");
         GLES20.glUniform4fv(colorHandle, 1, mColor, 0);
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, mTriangleCoords.length);
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 9);
 
         GLES20.glDisableVertexAttribArray(positionHandle);
     }
