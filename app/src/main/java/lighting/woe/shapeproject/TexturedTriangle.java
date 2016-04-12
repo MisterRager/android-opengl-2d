@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
-public class TexturedTriangle implements GLShape {
+public class TexturedTriangle /*implements GLShape*/ {
 
     private final float[] mTriangleCoords;
     private final int mTexture;
@@ -45,7 +45,7 @@ public class TexturedTriangle implements GLShape {
         mTexture = texture;
         mUVBuffer = uvBuffer;
     }
-
+/*
     @Override
     public void draw(float[] mvpMatrix, int program) {
         GLES20.glUseProgram(program);
@@ -80,4 +80,5 @@ public class TexturedTriangle implements GLShape {
     public boolean isTextured() {
         return true;
     }
+    */
 }

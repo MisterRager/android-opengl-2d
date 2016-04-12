@@ -8,6 +8,9 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
+import lighting.woe.shapeproject.program.AbstractProgram;
+import lighting.woe.shapeproject.program.SolidProgram;
+
 public class Triangle implements GLShape{
 
     private final float[] mColor;
@@ -51,25 +54,23 @@ public class Triangle implements GLShape{
     }
 
     @Override
-    public void draw(float[] mvpMatrix, int program){
-        GLES20.glUseProgram(program);
-        int positionHandle = GLES20.glGetAttribLocation(program, "vPosition");
-        GLES20.glEnableVertexAttribArray(positionHandle);
+    public void draw(float[] mvpMatrix, AbstractProgram program){
+        SolidProgram solidProgram = (SolidProgram) program;
+        solidProgram.useProgram();
+        GLES20.glEnableVertexAttribArray(solidProgram.getPositionHandle());
 
-        int matrixHandle = GLES20.glGetUniformLocation(program, "uMVPMatrix");
-        GLES20.glUniformMatrix4fv(matrixHandle, 1, false, mvpMatrix, 0);
+        GLES20.glUniformMatrix4fv(solidProgram.getMVPMatrixHandle(), 1, false, mvpMatrix, 0);
 
         GLES20.glVertexAttribPointer(
-                positionHandle, COORDS_PER_VERTEX,
+                solidProgram.getPositionHandle(), COORDS_PER_VERTEX,
                 GLES20.GL_FLOAT, false,
                 COORDS_PER_VERTEX * Constants.BYTES_PER_FLOAT,
                 vertexBuffer);
 
-        int colorHandle = GLES20.glGetUniformLocation(program, "vColor");
-        GLES20.glUniform4fv(colorHandle, 1, mColor, 0);
+        GLES20.glUniform4fv(solidProgram.getColorHandle(), 1, mColor, 0);
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 9);
 
-        GLES20.glDisableVertexAttribArray(positionHandle);
+        GLES20.glDisableVertexAttribArray(solidProgram.getPositionHandle());
     }
 
     @Override

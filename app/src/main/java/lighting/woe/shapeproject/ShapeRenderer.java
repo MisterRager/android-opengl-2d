@@ -21,6 +21,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import lighting.woe.shapeproject.program.SolidProgram;
+
 public class ShapeRenderer implements GLSurfaceView.Renderer {
     private static final String TAG = ShapeRenderer.class.getSimpleName();
     private final Context mContext;
@@ -28,7 +30,7 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
     private final float mRenderWidth;
 
     private final Collection<GLShape> mShapes = new CopyOnWriteArrayList<>();
-    private int mSolidProgram;
+    private SolidProgram mSolidProgram;
 
 
     private long mLastTime;
@@ -36,7 +38,7 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
     private float[] mProjectionMatrix = new float[16];
     private float[] mViewMatrix = new float[16];
     private float[] mMVPMatrix = new float[16];
-    private int mTexturedProgram;
+    //private int mTexturedProgram;
     private final SparseArray<Integer> mTextureLoc = new SparseArray<>();
 
     public ShapeRenderer(Context ctx, float height, float width) {
@@ -52,8 +54,8 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1);
 
         try {
-            mSolidProgram = loadProgram(R.raw.solid_vertex, R.raw.solid_fragment);
-            mTexturedProgram = loadProgram(R.raw.texture_vertex, R.raw.texture_fragment);
+            mSolidProgram = new SolidProgram(loadProgram(R.raw.solid_vertex, R.raw.solid_fragment));
+            //mTexturedProgram = loadProgram(R.raw.texture_vertex, R.raw.texture_fragment);
             mTextureLoc.put(0, loadTexture(R.drawable.insanitywelf, 0));
         } catch (IOException e) {
             Log.e(TAG, e.getMessage(), e);
@@ -124,7 +126,7 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
 
         for (GLShape shape : mShapes) {
             if (shape.isTextured()) {
-                shape.draw(mMVPMatrix, mTexturedProgram);
+                //shape.draw(mMVPMatrix, mTexturedProgram);
             } else {
                 shape.draw(mMVPMatrix, mSolidProgram);
             }
