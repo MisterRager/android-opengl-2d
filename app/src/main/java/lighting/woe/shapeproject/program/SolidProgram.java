@@ -1,5 +1,9 @@
 package lighting.woe.shapeproject.program;
 
+import android.content.Context;
+
+import java.io.IOException;
+
 public class SolidProgram extends AbstractProgram{
     private final int mPositionHandle;
     private final int mMVPMatrixHandle;
@@ -22,5 +26,10 @@ public class SolidProgram extends AbstractProgram{
 
     public int getColorHandle() {
         return mColorHandle;
+    }
+
+    public static SolidProgram buildShader(Context ctx, int vertexShaderId, int fragmentShaderId)
+            throws IOException {
+        return new SolidProgram(loadProgram(ctx, vertexShaderId, fragmentShaderId));
     }
 }

@@ -54,7 +54,8 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1);
 
         try {
-            mSolidProgram = new SolidProgram(loadProgram(R.raw.solid_vertex, R.raw.solid_fragment));
+            mSolidProgram = SolidProgram.buildShader(
+                    mContext, R.raw.solid_vertex, R.raw.solid_fragment);
             //mTexturedProgram = loadProgram(R.raw.texture_vertex, R.raw.texture_fragment);
             mTextureLoc.put(0, loadTexture(R.drawable.insanitywelf, 0));
         } catch (IOException e) {
@@ -135,38 +136,22 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
         mLastTime = now;
     }
 
-    private int loadProgram(int vertexShader, int fragmentShader) throws IOException {
-        InputStream is = mContext.getResources().openRawResource(vertexShader);
-        String vertexSource = new String(ByteStreams.toByteArray(is), Charsets.UTF_8);
-        is = mContext.getResources().openRawResource(fragmentShader);
-        String fragmentSource = new String(ByteStreams.toByteArray(is), Charsets.UTF_8);
 
-        return loadProgram(vertexSource, fragmentSource);
+    public void onPause() {
+
     }
 
-    private int loadProgram(String vertexSource, String fragmentSource) {
-        int vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexSource);
-        int fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentSource);
-        int program = GLES20.glCreateProgram();
-
-        GLES20.glAttachShader(program, vertexShader);
-        GLES20.glAttachShader(program, fragmentShader);
-        GLES20.glLinkProgram(program);
-
-        return program;
+    public void onResume() {
+        mLastTime = System.currentTimeMillis();
     }
 
-    private int loadShader(int type, String shaderCode) {
-        // create a vertex shader type (GLES20.GL_VERTEX_SHADER)
-        // or a fragment shader type (GLES20.GL_FRAGMENT_SHADER)
-        int shader = GLES20.glCreateShader(type);
+    public ShapeRenderer addShape(GLShape shape) {
+        mShapes.add(shape);
+        return this;
+    }
 
-        // add the source code to the shader and compile it
-        GLES20.glShaderSource(shader, shaderCode);
-        GLES20.glCompileShader(shader);
-
-        // return the shader
-        return shader;
+    public int getTextureLocation(int slotNumber) {
+        return mTextureLoc.get(slotNumber);
     }
 
     private int loadTexture(int resourceId, int textureSlot) {
@@ -207,20 +192,4 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
         return textureLoc[0];
     }
 
-    public void onPause() {
-
-    }
-
-    public void onResume() {
-        mLastTime = System.currentTimeMillis();
-    }
-
-    public ShapeRenderer addShape(GLShape shape) {
-        mShapes.add(shape);
-        return this;
-    }
-
-    public int getTextureLocation(int slotNumber) {
-        return mTextureLoc.get(slotNumber);
-    }
 }
