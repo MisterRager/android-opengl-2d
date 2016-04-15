@@ -13,6 +13,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.TypedValue;
 
+import lighting.woe.shapeproject.shapes.Quad;
+import lighting.woe.shapeproject.shapes.Triangle;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -50,6 +53,12 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 Log.v(TAG, "Doing shape adding task");
 
+                mRenderer.addShape(new Triangle(
+                        new PointF(0, 0),
+                        new PointF(virtualWidth / 2, virtualHeight),
+                        new PointF(virtualWidth, 0),
+                        Color.argb(255, 200, 150, 0)));
+
                 mRenderer.addShape(new Quad(
                         new PointF(0, virtualHeight),
                         new PointF(0, 0),
@@ -57,11 +66,6 @@ public class MainActivity extends AppCompatActivity {
                         new PointF(virtualWidth, 0),
                         Color.RED));
 
-                mRenderer.addShape(new Triangle(
-                        new PointF(0, 0),
-                        new PointF(virtualWidth / 2, virtualHeight),
-                        new PointF(virtualWidth, 0),
-                        Color.argb(255, 200, 150, 0)));
             }
         });
 

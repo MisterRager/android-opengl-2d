@@ -10,11 +10,7 @@ import android.opengl.Matrix;
 import android.util.Log;
 import android.util.SparseArray;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.ByteStreams;
-
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -22,6 +18,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import lighting.woe.shapeproject.program.SolidProgram;
+import lighting.woe.shapeproject.shapes.GLShape;
 
 public class ShapeRenderer implements GLSurfaceView.Renderer {
     private static final String TAG = ShapeRenderer.class.getSimpleName();
@@ -31,7 +28,6 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
 
     private final Collection<GLShape> mShapes = new CopyOnWriteArrayList<>();
     private SolidProgram mSolidProgram;
-
 
     private long mLastTime;
 

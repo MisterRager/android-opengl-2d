@@ -1,12 +1,12 @@
-package lighting.woe.shapeproject;
+package lighting.woe.shapeproject.shapes;
 
-import android.graphics.Color;
 import android.graphics.PointF;
-import android.opengl.GLES20;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+
+import lighting.woe.shapeproject.Constants;
 
 abstract public class TriangleStripShape implements GLShape {
     protected final FloatBuffer mVertexBuffer;

@@ -1,4 +1,4 @@
-package lighting.woe.shapeproject;
+package lighting.woe.shapeproject.shapes;
 
 import lighting.woe.shapeproject.program.AbstractProgram;
 

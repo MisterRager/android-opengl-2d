@@ -1,4 +1,4 @@
-package lighting.woe.shapeproject;
+package lighting.woe.shapeproject.shapes;
 
 import android.graphics.Color;
 import android.graphics.PointF;
@@ -8,10 +8,11 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
+import lighting.woe.shapeproject.Constants;
 import lighting.woe.shapeproject.program.AbstractProgram;
 import lighting.woe.shapeproject.program.SolidProgram;
 
-public class Triangle implements GLShape{
+public class Triangle implements GLShape {
 
     private final float[] mColor;
     private FloatBuffer vertexBuffer;
