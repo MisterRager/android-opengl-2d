@@ -92,6 +92,10 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
         // Redo the Viewport, making it fullscreen.
         GLES20.glViewport(0, 0, width, height);
 
+        for(int k = 0; k < 16; k++){
+            mMVPMatrix[k] = mViewMatrix[k] = mProjectionMatrix[k] = 0;
+        }
+
         // this projection matrix is applied to object coordinates
         // in the onDrawFrame() method
         Matrix.orthoM(

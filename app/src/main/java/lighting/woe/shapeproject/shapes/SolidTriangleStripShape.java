@@ -13,7 +13,7 @@ import static lighting.woe.shapeproject.Constants.COORDS_PER_VERTEX;
 public class SolidTriangleStripShape extends TriangleStripShape {
     private final float[] mColor;
 
-    SolidTriangleStripShape(int color, PointF... v) {
+    public SolidTriangleStripShape(int color, PointF... v) {
         super(v);
 
         mColor = new float[]{

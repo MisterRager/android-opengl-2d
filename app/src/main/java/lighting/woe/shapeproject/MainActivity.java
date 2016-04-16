@@ -13,8 +13,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.TypedValue;
 
-import lighting.woe.shapeproject.shapes.Quad;
+import lighting.woe.shapeproject.shapes.SolidDrawListShape;
 import lighting.woe.shapeproject.shapes.Triangle;
+
+import static android.graphics.Color.MAGENTA;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -53,18 +55,35 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 Log.v(TAG, "Doing shape adding task");
 
-                mRenderer.addShape(new Triangle(
-                        new PointF(0, 0),
-                        new PointF(virtualWidth / 2, virtualHeight),
-                        new PointF(virtualWidth, 0),
-                        Color.argb(255, 200, 150, 0)));
 
+                /*
                 mRenderer.addShape(new Quad(
                         new PointF(0, virtualHeight),
                         new PointF(0, 0),
                         new PointF(virtualWidth, virtualHeight),
                         new PointF(virtualWidth, 0),
                         Color.RED));
+                        */
+                mRenderer.addShape(new SolidDrawListShape.Builder()
+                        .putVertices(
+                                new PointF(0, virtualHeight),
+                                new PointF(0, 0),
+                                new PointF(virtualWidth, virtualHeight),
+                                new PointF(virtualWidth, 0))
+                        .setDrawList(
+                                (short) 0, (short) 1, (short) 2, (short) 2, (short) 1, (short) 3)
+                        .setColor(
+                                Color.red(MAGENTA),
+                                Color.green(MAGENTA),
+                                Color.blue(MAGENTA),
+                                255)
+                        .build());
+
+                mRenderer.addShape(new Triangle(
+                        new PointF(0, 0),
+                        new PointF(virtualWidth / 2, virtualHeight),
+                        new PointF(virtualWidth, 0),
+                        Color.argb(255, 200, 150, 0)));
 
             }
         });
@@ -120,3 +139,4 @@ public class MainActivity extends AppCompatActivity {
         return configurationInfo.reqGlEsVersion >= 0x20000;
     }
 }
+
