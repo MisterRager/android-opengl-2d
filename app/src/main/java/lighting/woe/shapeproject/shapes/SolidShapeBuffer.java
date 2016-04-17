@@ -3,10 +3,6 @@ package lighting.woe.shapeproject.shapes;
 import android.graphics.PointF;
 import android.graphics.RectF;
 
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Lists;
-import com.google.common.primitives.Shorts;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -17,7 +13,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import lighting.woe.shapeproject.Constants;
@@ -27,8 +22,6 @@ public class SolidShapeBuffer {
     final Collection<PointF> mPoints = new ArrayList<>();
     final Collection<SolidDrawListShape> mShapes = new ArrayList<>();
     final Map<SolidDrawListShape.Builder, List<Short>> mShapeDrawLists = new LinkedHashMap<>();
-
-    FloatBuffer mVertexBuffer;
 
     final AtomicBoolean mDirty = new AtomicBoolean(false);
 
@@ -50,7 +43,6 @@ public class SolidShapeBuffer {
 
         return this;
     }
-
 
     public SolidShapeBuffer addTriangle(PointF v1, PointF v2, PointF v3, GLColor glColor) {
         PointF[] vertices = new PointF[]{v1, v2, v3};
@@ -91,7 +83,6 @@ public class SolidShapeBuffer {
         vertexBuffer.put(vertices);
 
         vertexBuffer.position(0);
-        mVertexBuffer = vertexBuffer;
 
         mShapes.clear();
         int offset = 0;
@@ -102,7 +93,7 @@ public class SolidShapeBuffer {
             SolidDrawListShape.Builder b = entry.getKey();
             List<Short> dla = entry.getValue();
 
-            b.setVertexBuffer(mVertexBuffer);
+            b.setVertexBuffer(vertexBuffer);
 
             int indexList[] = new int[dla.size()];
             int k = 0;
