@@ -18,8 +18,7 @@ import android.util.TypedValue;
 
 import lighting.woe.shapeproject.shapes.GLColor;
 import lighting.woe.shapeproject.shapes.SolidShapeBuffer;
-import lighting.woe.shapeproject.shapes.TextureDrawListShape;
-import lighting.woe.shapeproject.shapes.TexturePointF;
+import lighting.woe.shapeproject.shapes.TextureShapeBuffer;
 
 import static android.graphics.Color.MAGENTA;
 
@@ -65,19 +64,11 @@ public class MainActivity extends AppCompatActivity {
                         new PointF(virtualWidth, 0),
                         new GLColor(Color.GRAY));
 
-        final TextureDrawListShape.Builder texturedShapeBuilder = new TextureDrawListShape.Builder()
-                .setVertices(
-                        new TexturePointF(
-                                new PointF(virtualWidth / 4f, virtualHeight / 4f), 0, 1),
-                        new TexturePointF(
-                                new PointF(virtualWidth / 4f, virtualHeight / 4f * 3f), 0, 0),
-                        new TexturePointF(
-                                new PointF(virtualWidth / 4f * 3f, virtualHeight / 4f), 1, 1),
-                        new TexturePointF(
-                                new PointF(virtualWidth / 4f * 3f, virtualHeight / 4f * 3f), 1, 0))
-                .setDrawIndices(1, 0, 3, 3, 0, 2);
-
-        texturedShapeBuilder.setTextureName(Constants.TEX_WELF);
+        final TextureShapeBuffer textureShapeBuffer = new TextureShapeBuffer()
+                .addTile(Constants.TEX_WELF,
+                        new RectF(
+                                virtualWidth / 4, virtualHeight * 3 / 4,
+                                virtualWidth * 3 / 4, virtualHeight / 4));
 
         final Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.insanitywelf);
 
@@ -87,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.v(TAG, "Doing shape adding task");
                 mRenderer.loadTexture(bmp, Constants.TEX_WELF);
                 mRenderer.addShapes(gradientShapeBuffer.getShapes());
-                mRenderer.addShape(texturedShapeBuilder.build());
+                mRenderer.addShapes(textureShapeBuffer.getShapes());
             }
         });
 
