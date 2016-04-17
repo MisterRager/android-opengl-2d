@@ -10,6 +10,8 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -34,6 +36,7 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
     private float[] mViewMatrix = new float[16];
     private float[] mMVPMatrix = new float[16];
     private TextureProgram mTextureProgram;
+    private final Map<String, Bitmap> mPendingTextures = new LinkedHashMap<>();
 
     public ShapeRenderer(Context ctx, float height, float width) {
         mContext = ctx;
@@ -53,7 +56,12 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
             mTextureProgram = TextureProgram.buildShader(
                     mContext, R.raw.texture_vertex, R.raw.texture_fragment);
 
-            loadTexture(R.drawable.insanitywelf, Constants.TEX_WELF);
+            synchronized (mPendingTextures){
+                for(Map.Entry<String, Bitmap> e : mPendingTextures.entrySet()){
+                    loadTexture(e.getValue(), e.getKey());
+                }
+                mPendingTextures.clear();
+            }
         } catch (IOException e) {
             Log.e(TAG, e.getMessage(), e);
         }
@@ -155,19 +163,14 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
         return this;
     }
 
-    public int loadTexture(int resourceId, String texName) {
-        Bitmap bmp = null;
-        try {
-            bmp = BitmapFactory.decodeResource(mContext.getResources(), resourceId);
-            return loadTexture(bmp, texName);
-        } finally {
-            if (null != bmp && !bmp.isRecycled()) {
-                bmp.recycle();
-            }
-        }
-    }
-
     public int loadTexture(Bitmap bmp, String textureName) {
-        return mTextureProgram.uploadTexture(textureName, bmp);
+        synchronized (mPendingTextures) {
+            if (null != mTextureProgram) {
+                return mTextureProgram.uploadTexture(textureName, bmp);
+            } else {
+                mPendingTextures.put(textureName, bmp);
+            }
+            return 0;
+        }
     }
 }

@@ -3,6 +3,10 @@ package lighting.woe.shapeproject.shapes;
 import android.graphics.PointF;
 import android.graphics.RectF;
 
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Lists;
+import com.google.common.primitives.Shorts;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -13,6 +17,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import lighting.woe.shapeproject.Constants;
@@ -66,9 +71,9 @@ public class SolidShapeBuffer {
             if (mDirty.getAndSet(false)) {
                 build();
             }
+            return new ArrayList<>(mShapes);
         }
 
-        return new ArrayList<>(mShapes);
     }
 
     void build() {

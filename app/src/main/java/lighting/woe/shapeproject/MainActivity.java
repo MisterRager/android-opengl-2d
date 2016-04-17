@@ -4,6 +4,8 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.ConfigurationInfo;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.RectF;
@@ -77,10 +79,13 @@ public class MainActivity extends AppCompatActivity {
 
         texturedShapeBuilder.setTextureName(Constants.TEX_WELF);
 
+        final Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.insanitywelf);
+
         mGlSurfaceView.post(new Runnable() {
             @Override
             public void run() {
                 Log.v(TAG, "Doing shape adding task");
+                mRenderer.loadTexture(bmp, Constants.TEX_WELF);
                 mRenderer.addShapes(gradientShapeBuffer.getShapes());
                 mRenderer.addShape(texturedShapeBuilder.build());
             }
