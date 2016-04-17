@@ -75,14 +75,8 @@ public class TextureDrawListShape implements GLShape {
     public static class Builder {
         FloatBuffer mVertexBuffer, mUVBuffer;
         ShortBuffer mDrawListBuffer;
-        private TexturePointF[] mVertexArray;
         private int[] mDrawListArray;
         private String mTextureName;
-
-        public Builder setVertices(TexturePointF... vertices) {
-            mVertexArray = vertices;
-            return this;
-        }
 
         public Builder setVertexBuffer(FloatBuffer mVertexBuffer) {
             this.mVertexBuffer = mVertexBuffer;
@@ -91,11 +85,6 @@ public class TextureDrawListShape implements GLShape {
 
         public Builder setUVBuffer(FloatBuffer mUVBuffer) {
             this.mUVBuffer = mUVBuffer;
-            return this;
-        }
-
-        public Builder setDrawListBuffer(ShortBuffer mDrawListBuffer) {
-            this.mDrawListBuffer = mDrawListBuffer;
             return this;
         }
 
@@ -110,33 +99,6 @@ public class TextureDrawListShape implements GLShape {
         }
 
         public TextureDrawListShape build() {
-            if ((null == mVertexBuffer || null == mUVBuffer) && null != mVertexArray) {
-                ByteBuffer bb = ByteBuffer.allocateDirect(
-                        VERTEX_DIMENS * mVertexArray.length * BYTES_PER_FLOAT);
-                bb.order(ByteOrder.nativeOrder());
-                FloatBuffer vertexBuffer = bb.asFloatBuffer();
-                vertexBuffer.position(0);
-
-                ByteBuffer ub = ByteBuffer.allocateDirect(
-                        UV_DIMENS * mVertexArray.length * BYTES_PER_FLOAT);
-                ub.order(ByteOrder.nativeOrder());
-                FloatBuffer uvBuffer = ub.asFloatBuffer();
-                uvBuffer.position(0);
-
-                for (TexturePointF v : mVertexArray) {
-                    vertexBuffer.put(v.mPointF.x);
-                    vertexBuffer.put(v.mPointF.y);
-                    vertexBuffer.put(0);
-                    uvBuffer.put(v.mTextureU);
-                    uvBuffer.put(v.mTextureV);
-                }
-                vertexBuffer.position(0);
-                uvBuffer.position(0);
-
-                mVertexBuffer = vertexBuffer;
-                mUVBuffer = uvBuffer;
-            }
-
             if (null == mDrawListBuffer && null != mDrawListArray) {
                 ByteBuffer dlb = ByteBuffer.allocateDirect(mDrawListArray.length * BYTES_PER_SHORT);
                 dlb.order(ByteOrder.nativeOrder());
