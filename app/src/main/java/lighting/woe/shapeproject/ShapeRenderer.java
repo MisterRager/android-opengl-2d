@@ -5,10 +5,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
-import android.opengl.GLUtils;
 import android.opengl.Matrix;
 import android.util.Log;
-import android.util.SparseArray;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -35,7 +33,6 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
     private float[] mProjectionMatrix = new float[16];
     private float[] mViewMatrix = new float[16];
     private float[] mMVPMatrix = new float[16];
-    private final SparseArray<Integer> mTextureLoc = new SparseArray<>();
     private TextureProgram mTextureProgram;
 
     public ShapeRenderer(Context ctx, float height, float width) {
@@ -55,7 +52,8 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
                     mContext, R.raw.solid_vertex, R.raw.solid_fragment);
             mTextureProgram = TextureProgram.buildShader(
                     mContext, R.raw.texture_vertex, R.raw.texture_fragment);
-            //mTexturedProgram = loadProgram(R.raw.texture_vertex, R.raw.texture_fragment);
+
+            loadTexture(R.drawable.insanitywelf, Constants.TEX_WELF);
         } catch (IOException e) {
             Log.e(TAG, e.getMessage(), e);
         }
@@ -157,15 +155,11 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
         return this;
     }
 
-    public int getTextureLocation(int slotNumber) {
-        return mTextureLoc.get(slotNumber);
-    }
-
-    private int loadTexture(int resourceId, int textureSlot) {
+    public int loadTexture(int resourceId, String texName) {
         Bitmap bmp = null;
         try {
             bmp = BitmapFactory.decodeResource(mContext.getResources(), resourceId);
-            return loadTexture(bmp, textureSlot);
+            return loadTexture(bmp, texName);
         } finally {
             if (null != bmp && !bmp.isRecycled()) {
                 bmp.recycle();
@@ -173,30 +167,11 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
         }
     }
 
-    private int loadTexture(Bitmap bmp, int textureSlot) {
-        final int[] textureLoc = new int[1];
-        GLES20.glGenTextures(1, textureLoc, textureSlot);
-
-        if (0 == textureLoc[0]) {
-            return 0;
-        }
-
-        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureLoc[0]);
-        // Set filtering
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER,
-                GLES20.GL_LINEAR);
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER,
-                GLES20.GL_LINEAR);
-        // Set wrapping mode
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S,
-                GLES20.GL_CLAMP_TO_EDGE);
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T,
-                GLES20.GL_CLAMP_TO_EDGE);
-
-        GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bmp, 0);
-
-        return textureLoc[0];
+    public int loadTexture(Bitmap bmp, String textureName) {
+        return mTextureProgram.uploadTexture(textureName, bmp);
     }
 
+    public int getTextureNumber(String textureName) {
+        return mTextureProgram.getTextureNumber(textureName);
+    }
 }

@@ -4,6 +4,8 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.ConfigurationInfo;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.RectF;
@@ -16,8 +18,11 @@ import android.util.TypedValue;
 
 import lighting.woe.shapeproject.shapes.GLColor;
 import lighting.woe.shapeproject.shapes.SolidShapeBuffer;
+import lighting.woe.shapeproject.shapes.TextureDrawListShape;
+import lighting.woe.shapeproject.shapes.TexturePointF;
 
 import static android.graphics.Color.MAGENTA;
+import static lighting.woe.shapeproject.Constants.TEX_WELF;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -61,11 +66,27 @@ public class MainActivity extends AppCompatActivity {
                         new PointF(virtualWidth, 0),
                         new GLColor(Color.GRAY));
 
+        final TextureDrawListShape.Builder texturedShapeBuilder = new TextureDrawListShape.Builder()
+                .setVertices(
+                        new TexturePointF(
+                                new PointF(virtualWidth / 4f, virtualHeight / 4f), 0, 1),
+                        new TexturePointF(
+                                new PointF(virtualWidth / 4f, virtualHeight / 4f * 3f), 0, 0),
+                        new TexturePointF(
+                                new PointF(virtualWidth / 4f * 3f, virtualHeight / 4f), 1, 1),
+                        new TexturePointF(
+                                new PointF(virtualWidth / 4f * 3f, virtualHeight / 4f * 3f), 1, 0))
+
+                .setDrawIndices(1, 0, 3, 3, 0, 2);
+
+        texturedShapeBuilder.setTextureName(Constants.TEX_WELF);
+
         mGlSurfaceView.post(new Runnable() {
             @Override
             public void run() {
                 Log.v(TAG, "Doing shape adding task");
                 mRenderer.addShapes(gradientShapeBuffer.getShapes());
+                mRenderer.addShape(texturedShapeBuilder.build());
             }
         });
 
