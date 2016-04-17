@@ -7,6 +7,7 @@ import android.opengl.GLUtils;
 import android.support.annotation.NonNull;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -17,6 +18,7 @@ public class TextureProgram extends AbstractProgram {
     private final int mTexHandle;
 
     private final Map<String, Integer> mTextureHandles = new LinkedHashMap<>();
+    private final Map<String, Integer> mTexturePositions = new HashMap<>();
 
     public TextureProgram(int programHandle) {
         super(programHandle);
@@ -45,6 +47,7 @@ public class TextureProgram extends AbstractProgram {
                 // Load the bitmap into the bound texture.
                 GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bmp, 0);
 
+                mTexturePositions.put(name, mTextureHandles.size());
                 mTextureHandles.put(name, textureHandle[0]);
             }
             return mTextureHandles.get(name);
@@ -67,17 +70,11 @@ public class TextureProgram extends AbstractProgram {
         return mTexHandle;
     }
 
-    public int getTextureHandle(@NonNull String name) {
-        synchronized (mTextureHandles) {
-            if (mTextureHandles.containsKey(name)) {
-                return mTextureHandles.get(name);
-            }
-            return 0;
-        }
-    }
-
     public int getTextureNumber(@NonNull String name) {
         synchronized (mTextureHandles) {
+            if(mTexturePositions.containsKey(name)){
+                return mTexturePositions.get(name);
+            }
             int k = 0;
             for (String texName : mTextureHandles.keySet()) {
                 if (name.equals(texName)) {
