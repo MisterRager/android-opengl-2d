@@ -1,10 +1,14 @@
 package lighting.woe.shapeproject;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
+import android.os.Handler;
+import android.os.Looper;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import java.io.IOException;
@@ -22,11 +26,17 @@ import lighting.woe.shapeproject.shapes.GLShape;
 
 public class ShapeRenderer implements GLSurfaceView.Renderer {
     private static final String TAG = ShapeRenderer.class.getSimpleName();
+
+    public static final String ACTION_RENDER_READY = "action.rendererIsReady";
+    public static final String ACTION_TEXTURE_READY = "action.textureUploadComplete";
+    public static final String DATA_TEXTURE = "data.textureName";
+
     private final Context mContext;
     private final float mRenderHeight;
     private final float mRenderWidth;
 
     private final Collection<GLShape> mShapes = new CopyOnWriteArrayList<>();
+    private final Handler mUiHandler;
     private SolidProgram mSolidProgram;
 
     private long mLastTime;
@@ -42,6 +52,7 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
 
         mRenderHeight = height;
         mRenderWidth = width;
+        mUiHandler = new Handler(Looper.getMainLooper());
     }
 
     @Override
@@ -61,6 +72,15 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
                 }
                 mPendingTextures.clear();
             }
+
+            // Broadcast renderer done setting up
+            mUiHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    LocalBroadcastManager.getInstance(mContext)
+                            .sendBroadcast(new Intent(ACTION_RENDER_READY));
+                }
+            });
         } catch (IOException e) {
             Log.e(TAG, e.getMessage(), e);
         }
@@ -162,10 +182,20 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
         return this;
     }
 
-    public int loadTexture(Bitmap bmp, String textureName) {
+    public int loadTexture(Bitmap bmp, final String textureName) {
         synchronized (mPendingTextures) {
             if (null != mTextureProgram) {
-                return mTextureProgram.uploadTexture(textureName, bmp);
+                int result = mTextureProgram.uploadTexture(textureName, bmp);
+                if(result != 0){
+                    mUiHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Intent broadcast = new Intent(ACTION_TEXTURE_READY);
+                            broadcast.putExtra(DATA_TEXTURE, textureName);
+                            LocalBroadcastManager.getInstance(mContext).sendBroadcast(broadcast);
+                        }
+                    });
+                }
             } else {
                 mPendingTextures.put(textureName, bmp);
             }

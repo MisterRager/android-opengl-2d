@@ -44,6 +44,13 @@ public class TextureProgram extends AbstractProgram {
                 GLES20.glTexParameteri(
                         GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
 
+
+                // set wrap mode
+                GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
+                        GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
+                GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
+                        GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
+
                 // Load the bitmap into the bound texture.
                 GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bmp, 0);
 
