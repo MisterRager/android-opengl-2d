@@ -14,7 +14,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.TypedValue;
 
-import lighting.woe.shapeproject.shapes.ColorPointF;
 import lighting.woe.shapeproject.shapes.GLColor;
 import lighting.woe.shapeproject.shapes.SolidShapeBuffer;
 

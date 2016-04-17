@@ -18,6 +18,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import lighting.woe.shapeproject.program.SolidProgram;
+import lighting.woe.shapeproject.program.TextureProgram;
 import lighting.woe.shapeproject.shapes.GLShape;
 
 public class ShapeRenderer implements GLSurfaceView.Renderer {
@@ -34,8 +35,8 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
     private float[] mProjectionMatrix = new float[16];
     private float[] mViewMatrix = new float[16];
     private float[] mMVPMatrix = new float[16];
-    //private int mTexturedProgram;
     private final SparseArray<Integer> mTextureLoc = new SparseArray<>();
+    private TextureProgram mTextureProgram;
 
     public ShapeRenderer(Context ctx, float height, float width) {
         mContext = ctx;
@@ -52,8 +53,9 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
         try {
             mSolidProgram = SolidProgram.buildShader(
                     mContext, R.raw.solid_vertex, R.raw.solid_fragment);
+            mTextureProgram = TextureProgram.buildShader(
+                    mContext, R.raw.texture_vertex, R.raw.texture_fragment);
             //mTexturedProgram = loadProgram(R.raw.texture_vertex, R.raw.texture_fragment);
-            mTextureLoc.put(0, loadTexture(R.drawable.insanitywelf, 0));
         } catch (IOException e) {
             Log.e(TAG, e.getMessage(), e);
         }
@@ -127,7 +129,7 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
 
         for (GLShape shape : mShapes) {
             if (shape.isTextured()) {
-                //shape.draw(mMVPMatrix, mTexturedProgram);
+                shape.draw(mMVPMatrix, mTextureProgram);
             } else {
                 shape.draw(mMVPMatrix, mSolidProgram);
             }
