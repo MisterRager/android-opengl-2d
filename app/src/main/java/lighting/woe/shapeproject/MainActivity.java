@@ -29,6 +29,7 @@ import static android.graphics.Color.MAGENTA;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
+
     private GLSurfaceView mGlSurfaceView;
     private ShapeRenderer mRenderer;
     private BroadcastReceiver mRendererReadyReceiver;
@@ -44,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
                 .build()
         );
 
-        mGlSurfaceView = new GLSurfaceView(this);
+        mGlSurfaceView = new TouchGLSurfaceView(this);
 
         final boolean supportsEs2 = isEs2Supported();
 
@@ -62,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
         final float virtualHeight = getFloatResource(R.dimen.GL_VIRTUAL_HEIGHT);
         mRenderer = new ShapeRenderer(this, virtualHeight, virtualWidth);
         mGlSurfaceView.setRenderer(mRenderer);
-        mGlSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+        mGlSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
         setContentView(mGlSurfaceView);
         final SolidShapeBuffer gradientShapeBuffer = new SolidShapeBuffer();
@@ -111,13 +112,13 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        mTextureReadyReceiver = new BroadcastReceiver(){
+        mTextureReadyReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String texName = intent.getStringExtra(ShapeRenderer.DATA_TEXTURE);
                 Log.v(TAG, "done loading texture " + texName);
 
-                switch(texName){
+                switch (texName) {
                     case Constants.TEX_WELF:
                         wolf.recycle();
                         break;
@@ -128,7 +129,9 @@ public class MainActivity extends AppCompatActivity {
                 mGlSurfaceView.requestRender();
             }
         };
+
     }
+
 
     @Override
     protected void onResume() {

@@ -203,4 +203,11 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
             return 0;
         }
     }
+
+    public void moveCamera(float x, float y){
+        Log.d(TAG, String.format("Moving the camera (%.4f, %.4f)", x, y));
+        Matrix.translateM(mViewMatrix, 0, x, y, 0);
+        Arrays.fill(mMVPMatrix, 0f);
+        Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
+    }
 }
