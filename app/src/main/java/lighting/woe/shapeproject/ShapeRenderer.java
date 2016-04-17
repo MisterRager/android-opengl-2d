@@ -17,11 +17,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import lighting.woe.shapeproject.program.GradientProgram;
 import lighting.woe.shapeproject.program.SolidProgram;
 import lighting.woe.shapeproject.shapes.GLShape;
-import lighting.woe.shapeproject.shapes.GradientDrawListShape;
-import lighting.woe.shapeproject.shapes.SolidDrawListShape;
 
 public class ShapeRenderer implements GLSurfaceView.Renderer {
     private static final String TAG = ShapeRenderer.class.getSimpleName();
@@ -31,7 +28,6 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
 
     private final Collection<GLShape> mShapes = new CopyOnWriteArrayList<>();
     private SolidProgram mSolidProgram;
-    private GradientProgram mGradientProgram;
 
     private long mLastTime;
 
@@ -56,8 +52,6 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
         try {
             mSolidProgram = SolidProgram.buildShader(
                     mContext, R.raw.solid_vertex, R.raw.solid_fragment);
-            mGradientProgram = GradientProgram.buildShader(
-                    mContext, R.raw.gradient_vertex, R.raw.gradient_fragment);
             //mTexturedProgram = loadProgram(R.raw.texture_vertex, R.raw.texture_fragment);
             mTextureLoc.put(0, loadTexture(R.drawable.insanitywelf, 0));
         } catch (IOException e) {
@@ -98,7 +92,7 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
         // Redo the Viewport, making it fullscreen.
         GLES20.glViewport(0, 0, width, height);
 
-        for(int k = 0; k < 16; k++){
+        for (int k = 0; k < 16; k++) {
             mMVPMatrix[k] = mViewMatrix[k] = mProjectionMatrix[k] = 0;
         }
 
@@ -132,16 +126,10 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
 
         for (GLShape shape : mShapes) {
-            if (shape instanceof SolidDrawListShape) {
+            if (shape.isTextured()) {
+                //shape.draw(mMVPMatrix, mTexturedProgram);
+            } else {
                 shape.draw(mMVPMatrix, mSolidProgram);
-            }else if(shape instanceof GradientDrawListShape){
-                shape.draw(mMVPMatrix, mGradientProgram);
-            }else {
-                if (shape.isTextured()) {
-                    //shape.draw(mMVPMatrix, mTexturedProgram);
-                } else {
-                    shape.draw(mMVPMatrix, mSolidProgram);
-                }
             }
         }
 
@@ -162,7 +150,7 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
         return this;
     }
 
-    public ShapeRenderer addShapes(Collection<? extends GLShape> shapes){
+    public ShapeRenderer addShapes(Collection<? extends GLShape> shapes) {
         mShapes.addAll(shapes);
         return this;
     }

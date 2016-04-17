@@ -14,8 +14,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.TypedValue;
 
+import lighting.woe.shapeproject.shapes.ColorPointF;
 import lighting.woe.shapeproject.shapes.GLColor;
 import lighting.woe.shapeproject.shapes.SolidShapeBuffer;
+
+import static android.graphics.Color.MAGENTA;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -47,24 +50,23 @@ public class MainActivity extends AppCompatActivity {
         mGlSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
         setContentView(mGlSurfaceView);
-        final SolidShapeBuffer solidShapeBuffer = new SolidShapeBuffer();
+        final SolidShapeBuffer gradientShapeBuffer = new SolidShapeBuffer();
 
-        solidShapeBuffer
+        gradientShapeBuffer
                 .addRectangle(
                         new RectF(0, virtualHeight, virtualWidth, 0),
-                        new GLColor(Color.MAGENTA))
+                        new GLColor(MAGENTA))
                 .addTriangle(
                         new PointF(0, 0),
                         new PointF(virtualWidth / 2, virtualHeight),
                         new PointF(virtualWidth, 0),
-                        new GLColor(Color.argb(255, 200, 150, 0)));
-
+                        new GLColor(Color.GRAY));
 
         mGlSurfaceView.post(new Runnable() {
             @Override
             public void run() {
                 Log.v(TAG, "Doing shape adding task");
-                mRenderer.addShapes(solidShapeBuffer.getShapes());
+                mRenderer.addShapes(gradientShapeBuffer.getShapes());
             }
         });
 
