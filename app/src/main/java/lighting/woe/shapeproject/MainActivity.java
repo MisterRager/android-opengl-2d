@@ -67,16 +67,22 @@ public class MainActivity extends AppCompatActivity {
         final TextureShapeBuffer textureShapeBuffer = new TextureShapeBuffer()
                 .addTile(Constants.TEX_WELF,
                         new RectF(
-                                virtualWidth / 4, virtualHeight * 3 / 4,
-                                virtualWidth * 3 / 4, virtualHeight / 4));
+                                virtualWidth / 8, virtualHeight * 3 / 8,
+                                virtualWidth * 3 / 8, virtualHeight / 8))
+                .addTile(Constants.TEX_AWESUM,
+                        new RectF(
+                                virtualWidth * 5/ 8, virtualHeight * 3 / 8,
+                                virtualWidth * 7 / 8, virtualHeight / 8));
 
-        final Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.insanitywelf);
+        final Bitmap wolf = BitmapFactory.decodeResource(getResources(), R.drawable.insanitywelf);
+        final Bitmap awe = BitmapFactory.decodeResource(getResources(), R.drawable.awesome);
 
         mGlSurfaceView.post(new Runnable() {
             @Override
             public void run() {
                 Log.v(TAG, "Doing shape adding task");
-                mRenderer.loadTexture(bmp, Constants.TEX_WELF);
+                mRenderer.loadTexture(wolf, Constants.TEX_WELF);
+                mRenderer.loadTexture(awe, Constants.TEX_AWESUM);
                 mRenderer.addShapes(gradientShapeBuffer.getShapes());
                 mRenderer.addShapes(textureShapeBuffer.getShapes());
             }
