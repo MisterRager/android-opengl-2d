@@ -26,8 +26,6 @@ public class TextureShapeBuffer {
 
     private List<TextureDrawListShape> mShapes = new ArrayList<>();
 
-    private FloatBuffer mVertexBuffer, mUVBuffer;
-
     public TextureShapeBuffer addTriangle(
             String textureName,
             TexturePointF v1, TexturePointF v2, TexturePointF v3) {
@@ -100,10 +98,8 @@ public class TextureShapeBuffer {
         }
 
         vertexBuffer.position(0);
-        mVertexBuffer = vertexBuffer;
 
         uvBuffer.position(0);
-        mUVBuffer = uvBuffer;
 
         ArrayList<TextureDrawListShape> shapes = new ArrayList<>(mShapeDrawLists.size());
         int offset = 0;
@@ -114,8 +110,8 @@ public class TextureShapeBuffer {
             TextureDrawListShape.Builder b = entry.getKey();
             List<Short> dla = entry.getValue();
 
-            b.setVertexBuffer(mVertexBuffer);
-            b.setUVBuffer(mUVBuffer);
+            b.setVertexBuffer(vertexBuffer);
+            b.setUVBuffer(uvBuffer);
 
             int indexList[] = new int[dla.size()];
             int k = 0;
