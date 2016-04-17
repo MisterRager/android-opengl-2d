@@ -170,8 +170,4 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
     public int loadTexture(Bitmap bmp, String textureName) {
         return mTextureProgram.uploadTexture(textureName, bmp);
     }
-
-    public int getTextureNumber(String textureName) {
-        return mTextureProgram.getTextureNumber(textureName);
-    }
 }
