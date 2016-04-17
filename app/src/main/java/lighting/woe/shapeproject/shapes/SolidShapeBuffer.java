@@ -9,6 +9,7 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -20,7 +21,7 @@ import lighting.woe.shapeproject.Constants;
 public class SolidShapeBuffer {
 
     final Collection<PointF> mPoints = new ArrayList<>();
-    final Collection<SolidDrawListShape> mShapes = new ArrayList<>();
+    final List<SolidDrawListShape> mShapes = new ArrayList<>();
     final Map<SolidDrawListShape.Builder, List<Short>> mShapeDrawLists = new LinkedHashMap<>();
 
     final AtomicBoolean mDirty = new AtomicBoolean(false);
@@ -58,12 +59,12 @@ public class SolidShapeBuffer {
         return this;
     }
 
-    public ArrayList<SolidDrawListShape> getShapes() {
+    public List<SolidDrawListShape> getShapes() {
         synchronized (mDirty) {
             if (mDirty.getAndSet(false)) {
                 build();
             }
-            return new ArrayList<>(mShapes);
+            return Collections.unmodifiableList(mShapes);
         }
 
     }

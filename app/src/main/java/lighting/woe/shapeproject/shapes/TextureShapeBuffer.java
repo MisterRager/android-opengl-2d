@@ -9,6 +9,7 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -72,8 +73,8 @@ public class TextureShapeBuffer {
             if (mDirty.getAndSet(false)) {
                 build();
             }
+            return Collections.unmodifiableList(mShapes);
         }
-        return mShapes;
     }
 
     void build() {
