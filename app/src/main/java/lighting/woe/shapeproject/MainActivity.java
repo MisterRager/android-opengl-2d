@@ -14,6 +14,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.TypedValue;
 
+import java.util.Collection;
+
 import lighting.woe.shapeproject.shapes.GLColor;
 import lighting.woe.shapeproject.shapes.GLShape;
 import lighting.woe.shapeproject.shapes.ShapeBuffer;
@@ -53,6 +55,9 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(mGlSurfaceView);
         final ShapeBuffer shapeBuffer = new ShapeBuffer();
+        shapeBuffer.addRectangle(
+                new RectF(0, virtualHeight, virtualWidth, 0),
+                new GLColor(Color.MAGENTA));
 
 
         mGlSurfaceView.post(new Runnable() {
@@ -61,14 +66,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.v(TAG, "Doing shape adding task");
 
 
-                /*
-                mRenderer.addShape(new Quad(
-                        new PointF(0, virtualHeight),
-                        new PointF(0, 0),
-                        new PointF(virtualWidth, virtualHeight),
-                        new PointF(virtualWidth, 0),
-                        Color.RED));
-                        */
                 mRenderer.addShape(new SolidDrawListShape.Builder()
                         .putVertices(
                                 new PointF(0, virtualHeight),
@@ -78,6 +75,8 @@ public class MainActivity extends AppCompatActivity {
                         .setDrawList(0, 1, 2, 2, 1, 3)
                         .setColor(new GLColor(Color.GREEN))
                         .build());
+
+                mRenderer.addShapes(shapeBuffer.getShapes());
 
                 mRenderer.addShape(new Triangle(
                         new PointF(0, 0),

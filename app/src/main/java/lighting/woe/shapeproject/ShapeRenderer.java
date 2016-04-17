@@ -150,6 +150,11 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
         return this;
     }
 
+    public ShapeRenderer addShapes(Collection<? extends GLShape> shapes){
+        mShapes.addAll(shapes);
+        return this;
+    }
+
     public int getTextureLocation(int slotNumber) {
         return mTextureLoc.get(slotNumber);
     }
