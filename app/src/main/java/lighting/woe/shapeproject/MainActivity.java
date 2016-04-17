@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         final float virtualHeight = getFloatResource(R.dimen.GL_VIRTUAL_HEIGHT);
         mRenderer = new ShapeRenderer(this, virtualHeight, virtualWidth);
         mGlSurfaceView.setRenderer(mRenderer);
-        mGlSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+        mGlSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 
         setContentView(mGlSurfaceView);
         final SolidShapeBuffer gradientShapeBuffer = new SolidShapeBuffer();
@@ -99,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
                 mRenderer.addShapes(gradientShapeBuffer.getShapes());
                 mRenderer.addShapes(textureShapeBuffer.getShapes());
                 Log.v(TAG, "done adding shapes");
+                mGlSurfaceView.requestRender();
             }
         });
 
@@ -115,6 +116,15 @@ public class MainActivity extends AppCompatActivity {
             public void onReceive(Context context, Intent intent) {
                 String texName = intent.getStringExtra(ShapeRenderer.DATA_TEXTURE);
                 Log.v(TAG, "done loading texture " + texName);
+
+                switch(texName){
+                    case Constants.TEX_WELF:
+                        wolf.recycle();
+                        break;
+                    case Constants.TEX_AWESUM:
+                        awe.recycle();
+                        break;
+                }
                 mGlSurfaceView.requestRender();
             }
         };
