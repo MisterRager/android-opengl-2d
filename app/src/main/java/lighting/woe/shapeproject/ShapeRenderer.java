@@ -12,6 +12,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -59,6 +60,15 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceCreated(GL10 gl10, EGLConfig eglConfig) {
         // Set the clear color to black
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1);
+
+        Arrays.fill(mViewMatrix, 0f);
+
+        // Set the camera position (View matrix)
+        Matrix.setLookAtM(
+                mViewMatrix, 0,
+                0f, 0f, 10f, // eye position
+                0f, 0f, 0f, // center position
+                0f, 1f, 0f); // up vector
 
         try {
             mSolidProgram = SolidProgram.buildShader(
@@ -120,23 +130,19 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
         GLES20.glViewport(0, 0, width, height);
 
         for (int k = 0; k < 16; k++) {
-            mMVPMatrix[k] = mViewMatrix[k] = mProjectionMatrix[k] = 0;
+            mMVPMatrix[k] = mProjectionMatrix[k] = 0;
         }
 
         // this projection matrix is applied to object coordinates
         // in the onDrawFrame() method
         Matrix.orthoM(
                 mProjectionMatrix, 0,
-                x1, x2,
-                y1, y2,
-                Float.MIN_VALUE, 10f);
+                x1, x2, // left/right
+                y1, y2, // bottom/top
+                10f, 0f); // near/far
 
-        // Set the camera position (View matrix)
-        Matrix.setLookAtM(
-                mViewMatrix, 0,
-                0f, 0f, 10f,
-                0f, 0f, 0f,
-                0f, 1f, 0f);
+        // Calculate the projection and view transformation
+        Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
     }
 
     @Override
@@ -149,9 +155,6 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
 
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
-        // Calculate the projection and view transformation
-        Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
-
         for (GLShape shape : mShapes) {
             if (shape.isTextured()) {
                 shape.draw(mMVPMatrix, mTextureProgram);
@@ -163,13 +166,11 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
         mLastTime = now;
     }
 
-
-    public void onPause() {
-
-    }
-
     public void onResume() {
         mLastTime = System.currentTimeMillis();
+    }
+
+    public void onPause(){
     }
 
     public ShapeRenderer addShape(GLShape shape) {
@@ -186,7 +187,7 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
         synchronized (mPendingTextures) {
             if (null != mTextureProgram) {
                 int result = mTextureProgram.uploadTexture(textureName, bmp);
-                if(result != 0){
+                if (result != 0) {
                     mUiHandler.post(new Runnable() {
                         @Override
                         public void run() {
