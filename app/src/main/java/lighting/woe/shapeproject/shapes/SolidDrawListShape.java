@@ -16,7 +16,7 @@ import lighting.woe.shapeproject.program.AbstractProgram;
 import lighting.woe.shapeproject.program.SolidProgram;
 
 import static lighting.woe.shapeproject.Constants.BYTES_PER_SHORT;
-import static lighting.woe.shapeproject.Constants.COORDS_PER_VERTEX;
+import static lighting.woe.shapeproject.Constants.VERTEX_DIMENS;
 
 public class SolidDrawListShape implements GLShape {
     final FloatBuffer mVertexBuffer;
@@ -43,7 +43,7 @@ public class SolidDrawListShape implements GLShape {
                     solidProgram.getPositionHandle());
             GLES20.glVertexAttribPointer(
                     solidProgram.getPositionHandle(),
-                    COORDS_PER_VERTEX, GLES20.GL_FLOAT, false, 0, mVertexBuffer);
+                    VERTEX_DIMENS, GLES20.GL_FLOAT, false, 0, mVertexBuffer);
 
             // set transform matrix
             GLES20.glUniformMatrix4fv(
@@ -121,7 +121,7 @@ public class SolidDrawListShape implements GLShape {
 
             if (null == mVertexBuffer && null != mVertexCollection) {
                 ByteBuffer bb = ByteBuffer.allocateDirect(
-                        COORDS_PER_VERTEX * mVertexCollection.size() * Constants.BYTES_PER_FLOAT);
+                        VERTEX_DIMENS * mVertexCollection.size() * Constants.BYTES_PER_FLOAT);
                 bb.order(ByteOrder.nativeOrder());
                 FloatBuffer vertexBuffer = bb.asFloatBuffer();
                 vertexBuffer.position(0);

@@ -15,27 +15,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import lighting.woe.shapeproject.Constants;
+import static lighting.woe.shapeproject.Constants.BYTES_PER_FLOAT;
+import static lighting.woe.shapeproject.Constants.COLOR_DIMENS;
+import static lighting.woe.shapeproject.Constants.VERTEX_DIMENS;
 
-public class SolidShapeBuffer {
+public class GradientShapeBuffer {
 
-    final Collection<PointF> mPoints = new ArrayList<>();
-    final Collection<SolidDrawListShape> mShapes = new ArrayList<>();
-    final Map<SolidDrawListShape.Builder, List<Short>> mShapeDrawLists = new LinkedHashMap<>();
+    final Collection<ColorPointF> mPoints = new ArrayList<>();
+    final Collection<GradientDrawListShape> mShapes = new ArrayList<>();
+    final Map<GradientDrawListShape.Builder, List<Short>> mShapeDrawLists = new LinkedHashMap<>();
 
     FloatBuffer mVertexBuffer;
 
     final AtomicBoolean mDirty = new AtomicBoolean(false);
 
-    public SolidShapeBuffer addRectangle(RectF rect, GLColor color) {
-        PointF[] vertices = new PointF[]{
-                new PointF(rect.left, rect.bottom),
-                new PointF(rect.left, rect.top),
-                new PointF(rect.right, rect.bottom),
-                new PointF(rect.right, rect.top)};
+    public GradientShapeBuffer addRectangle(RectF rect, GLColor color) {
+        ColorPointF[] vertices = new ColorPointF[]{
+                new ColorPointF(new PointF(rect.left, rect.bottom), color),
+                new ColorPointF(new PointF(rect.left, rect.top), color),
+                new ColorPointF(new PointF(rect.right, rect.bottom), color),
+                new ColorPointF(new PointF(rect.right, rect.top), color)};
 
-        SolidDrawListShape.Builder builder = new SolidDrawListShape.Builder().putVertices(vertices)
-                .setColor(color);
+        GradientDrawListShape.Builder builder = new GradientDrawListShape.Builder();
 
         synchronized (mDirty) {
             mPoints.addAll(Arrays.asList(vertices));
@@ -47,10 +48,9 @@ public class SolidShapeBuffer {
     }
 
 
-    public SolidShapeBuffer addTriangle(PointF v1, PointF v2, PointF v3, GLColor glColor) {
-        PointF[] vertices = new PointF[]{v1, v2, v3};
-        SolidDrawListShape.Builder builder = new SolidDrawListShape.Builder().putVertices(vertices)
-                .setColor(glColor);
+    public GradientShapeBuffer addTriangle(ColorPointF v1, ColorPointF v2, ColorPointF v3, GLColor glColor) {
+        ColorPointF[] vertices = new ColorPointF[]{v1, v2, v3};
+        GradientDrawListShape.Builder builder = new GradientDrawListShape.Builder();
 
         synchronized (mDirty) {
             mPoints.addAll(Arrays.asList(vertices));
@@ -61,7 +61,7 @@ public class SolidShapeBuffer {
         return this;
     }
 
-    public ArrayList<SolidDrawListShape> getShapes() {
+    public ArrayList<GradientDrawListShape> getShapes() {
         synchronized (mDirty) {
             if (mDirty.getAndSet(false)) {
                 build();
@@ -72,15 +72,19 @@ public class SolidShapeBuffer {
     }
 
     void build() {
-        float vertices[] = new float[mPoints.size() * Constants.VERTEX_DIMENS];
+        float vertices[] = new float[mPoints.size() * (VERTEX_DIMENS + COLOR_DIMENS)];
         int i = 0;
-        for (PointF v : mPoints) {
-            vertices[i++] = v.x;
-            vertices[i++] = v.y;
+        for (ColorPointF v : mPoints) {
+            vertices[i++] = v.point.x;
+            vertices[i++] = v.point.y;
             vertices[i++] = 0;
+            vertices[i++] = v.color.red;
+            vertices[i++] = v.color.green;
+            vertices[i++] = v.color.blue;
+            vertices[i++] = v.color.alpha;
         }
 
-        ByteBuffer bb = ByteBuffer.allocateDirect(vertices.length * Constants.BYTES_PER_FLOAT);
+        ByteBuffer bb = ByteBuffer.allocateDirect(vertices.length * BYTES_PER_FLOAT);
         bb.order(ByteOrder.nativeOrder());
         FloatBuffer vertexBuffer = bb.asFloatBuffer();
         vertexBuffer.put(vertices);
@@ -91,10 +95,10 @@ public class SolidShapeBuffer {
         mShapes.clear();
         int offset = 0;
 
-        for (Map.Entry<SolidDrawListShape.Builder, List<Short>> entry
+        for (Map.Entry<GradientDrawListShape.Builder, List<Short>> entry
                 : mShapeDrawLists.entrySet()) {
 
-            SolidDrawListShape.Builder b = entry.getKey();
+            GradientDrawListShape.Builder b = entry.getKey();
             List<Short> dla = entry.getValue();
 
             b.setVertexBuffer(mVertexBuffer);

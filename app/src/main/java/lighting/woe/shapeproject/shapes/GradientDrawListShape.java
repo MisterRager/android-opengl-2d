@@ -15,7 +15,7 @@ import lighting.woe.shapeproject.program.GradientProgram;
 
 import static lighting.woe.shapeproject.Constants.BYTES_PER_SHORT;
 import static lighting.woe.shapeproject.Constants.COLOR_DIMENS;
-import static lighting.woe.shapeproject.Constants.COORDS_PER_VERTEX;
+import static lighting.woe.shapeproject.Constants.VERTEX_DIMENS;
 
 public class GradientDrawListShape implements GLShape {
     final FloatBuffer mVertexBuffer;
@@ -40,7 +40,7 @@ public class GradientDrawListShape implements GLShape {
                     gradientProgram.getPositionHandle());
             GLES20.glVertexAttribPointer(
                     gradientProgram.getPositionHandle(),
-                    COORDS_PER_VERTEX, GLES20.GL_FLOAT, false,
+                    VERTEX_DIMENS, GLES20.GL_FLOAT, false,
                     COLOR_DIMENS, mVertexBuffer);
 
             // set transform matrix
@@ -53,7 +53,7 @@ public class GradientDrawListShape implements GLShape {
             GLES20.glVertexAttribPointer(
                     gradientProgram.getColorHandle(),
                     COLOR_DIMENS, GLES20.GL_FLOAT, false,
-                    COORDS_PER_VERTEX, COORDS_PER_VERTEX);
+                    VERTEX_DIMENS, VERTEX_DIMENS);
 
             // draw triangles
             GLES20.glDrawElements(
@@ -73,7 +73,6 @@ public class GradientDrawListShape implements GLShape {
     public static class Builder {
 
         FloatBuffer mVertexBuffer;
-        float[] mColor;
         ShortBuffer mDrawListBuffer;
         int[] mDrawListArray;
         ArrayList<ColorPointF> mVertexCollection;
@@ -83,21 +82,6 @@ public class GradientDrawListShape implements GLShape {
             return this;
         }
 
-        /*
-        public Builder putVertices(PointF... vertices) {
-            if (null == mVertexCollection) {
-                mVertexCollection = new ArrayList<>(Arrays.asList(vertices));
-            } else {
-                mVertexCollection.addAll(Arrays.asList(vertices));
-            }
-            return this;
-        }
-
-        public Builder setColor(GLColor color) {
-            mColor = color.rgbaArray();
-            return this;
-        }
-        */
         public Builder putVertices(ColorPointF... vertices) {
             if (null == mVertexCollection) {
                 mVertexCollection = new ArrayList<>(Arrays.asList(vertices));
@@ -134,7 +118,7 @@ public class GradientDrawListShape implements GLShape {
 
             if (null == mVertexBuffer && null != mVertexCollection) {
                 ByteBuffer bb = ByteBuffer.allocateDirect(
-                        (COORDS_PER_VERTEX + COLOR_DIMENS)
+                        (VERTEX_DIMENS + COLOR_DIMENS)
                                 * mVertexCollection.size() * Constants.BYTES_PER_FLOAT);
                 bb.order(ByteOrder.nativeOrder());
                 FloatBuffer vertexBuffer = bb.asFloatBuffer();
