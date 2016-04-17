@@ -14,15 +14,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.TypedValue;
 
-import java.util.Collection;
-
 import lighting.woe.shapeproject.shapes.GLColor;
-import lighting.woe.shapeproject.shapes.GLShape;
-import lighting.woe.shapeproject.shapes.ShapeBuffer;
-import lighting.woe.shapeproject.shapes.SolidDrawListShape;
-import lighting.woe.shapeproject.shapes.Triangle;
-
-import static android.graphics.Color.*;
+import lighting.woe.shapeproject.shapes.SolidShapeBuffer;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -54,36 +47,24 @@ public class MainActivity extends AppCompatActivity {
         mGlSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
         setContentView(mGlSurfaceView);
-        final ShapeBuffer shapeBuffer = new ShapeBuffer();
-        shapeBuffer.addRectangle(
-                new RectF(0, virtualHeight, virtualWidth, 0),
-                new GLColor(Color.MAGENTA));
+        final SolidShapeBuffer solidShapeBuffer = new SolidShapeBuffer();
+
+        solidShapeBuffer
+                .addRectangle(
+                        new RectF(0, virtualHeight, virtualWidth, 0),
+                        new GLColor(Color.MAGENTA))
+                .addTriangle(
+                        new PointF(0, 0),
+                        new PointF(virtualWidth / 2, virtualHeight),
+                        new PointF(virtualWidth, 0),
+                        new GLColor(Color.argb(255, 200, 150, 0)));
 
 
         mGlSurfaceView.post(new Runnable() {
             @Override
             public void run() {
                 Log.v(TAG, "Doing shape adding task");
-
-
-                mRenderer.addShape(new SolidDrawListShape.Builder()
-                        .putVertices(
-                                new PointF(0, virtualHeight),
-                                new PointF(0, 0),
-                                new PointF(virtualWidth, virtualHeight),
-                                new PointF(virtualWidth, 0))
-                        .setDrawList(0, 1, 2, 2, 1, 3)
-                        .setColor(new GLColor(Color.GREEN))
-                        .build());
-
-                mRenderer.addShapes(shapeBuffer.getShapes());
-
-                mRenderer.addShape(new Triangle(
-                        new PointF(0, 0),
-                        new PointF(virtualWidth / 2, virtualHeight),
-                        new PointF(virtualWidth, 0),
-                        argb(255, 200, 150, 0)));
-
+                mRenderer.addShapes(solidShapeBuffer.getShapes());
             }
         });
 

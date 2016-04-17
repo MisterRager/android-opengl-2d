@@ -17,9 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import lighting.woe.shapeproject.Constants;
 
-public class ShapeBuffer {
-
-    private static final String TAG = ShapeBuffer.class.getName();
+public class SolidShapeBuffer {
 
     final Collection<PointF> mPoints = new ArrayList<>();
     final Collection<SolidDrawListShape> mShapes = new ArrayList<>();
@@ -29,22 +27,38 @@ public class ShapeBuffer {
 
     final AtomicBoolean mDirty = new AtomicBoolean(false);
 
-    public void addRectangle(RectF rect, GLColor color) {
+    public SolidShapeBuffer addRectangle(RectF rect, GLColor color) {
         PointF[] vertices = new PointF[]{
                 new PointF(rect.left, rect.bottom),
                 new PointF(rect.left, rect.top),
                 new PointF(rect.right, rect.bottom),
                 new PointF(rect.right, rect.top)};
 
-        mPoints.addAll(Arrays.asList(vertices));
-
-        SolidDrawListShape.Builder builder = new SolidDrawListShape.Builder().putVertices(vertices);
-        builder.setColor(color);
+        SolidDrawListShape.Builder builder = new SolidDrawListShape.Builder().putVertices(vertices)
+                .setColor(color);
 
         synchronized (mDirty) {
+            mPoints.addAll(Arrays.asList(vertices));
             mShapeDrawLists.put(builder, Arrays.asList(new Short[]{1, 0, 3, 3, 1, 2}));
             mDirty.set(true);
         }
+
+        return this;
+    }
+
+
+    public SolidShapeBuffer addTriangle(PointF v1, PointF v2, PointF v3, GLColor glColor) {
+        PointF[] vertices = new PointF[]{v1, v2, v3};
+        SolidDrawListShape.Builder builder = new SolidDrawListShape.Builder().putVertices(vertices)
+                .setColor(glColor);
+
+        synchronized (mDirty) {
+            mPoints.addAll(Arrays.asList(vertices));
+            mShapeDrawLists.put(builder, Arrays.asList(new Short[]{0, 1, 2}));
+            mDirty.set(true);
+        }
+
+        return this;
     }
 
     public ArrayList<SolidDrawListShape> getShapes() {
@@ -95,5 +109,4 @@ public class ShapeBuffer {
             offset += new HashSet<>(dla).size();
         }
     }
-
 }
