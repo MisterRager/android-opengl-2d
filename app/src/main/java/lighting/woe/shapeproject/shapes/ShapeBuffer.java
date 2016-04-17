@@ -1,0 +1,99 @@
+package lighting.woe.shapeproject.shapes;
+
+import android.graphics.PointF;
+import android.graphics.RectF;
+
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import lighting.woe.shapeproject.Constants;
+
+public class ShapeBuffer {
+
+    private static final String TAG = ShapeBuffer.class.getName();
+
+    final Collection<PointF> mPoints = new ArrayList<>();
+    final Collection<SolidDrawListShape> mShapes = new ArrayList<>();
+    final Map<SolidDrawListShape.Builder, List<Short>> mShapeDrawLists = new LinkedHashMap<>();
+
+    FloatBuffer mVertexBuffer;
+
+    final AtomicBoolean mDirty = new AtomicBoolean(false);
+
+    public void addRectangle(RectF rect, GLColor color) {
+        PointF[] vertices = new PointF[]{
+                new PointF(rect.left, rect.bottom),
+                new PointF(rect.left, rect.top),
+                new PointF(rect.right, rect.bottom),
+                new PointF(rect.right, rect.top)};
+
+        mPoints.addAll(Arrays.asList(vertices));
+
+        SolidDrawListShape.Builder builder = new SolidDrawListShape.Builder().putVertices(vertices);
+        builder.setColor(color);
+
+        synchronized (mDirty) {
+            mShapeDrawLists.put(builder, Arrays.asList(new Short[]{1, 0, 3, 3, 1, 2}));
+            mDirty.set(true);
+        }
+    }
+
+    public ArrayList<SolidDrawListShape> getShapes() {
+        synchronized (mDirty) {
+            if (mDirty.getAndSet(false)) {
+                build();
+            }
+        }
+
+        return new ArrayList<>(mShapes);
+    }
+
+    void build() {
+        float vertices[] = new float[mPoints.size() * Constants.COORDS_PER_VERTEX];
+        int i = 0;
+        for (PointF v : mPoints) {
+            vertices[i++] = v.x;
+            vertices[i++] = v.y;
+            vertices[i++] = 0;
+        }
+
+        ByteBuffer bb = ByteBuffer.allocateDirect(vertices.length * Constants.BYTES_PER_FLOAT);
+        bb.order(ByteOrder.nativeOrder());
+        FloatBuffer vertexBuffer = bb.asFloatBuffer();
+        vertexBuffer.put(vertices);
+
+        vertexBuffer.position(0);
+        mVertexBuffer = vertexBuffer;
+
+        mShapes.clear();
+        int offset = 0;
+
+        for (Map.Entry<SolidDrawListShape.Builder, List<Short>> entry
+                : mShapeDrawLists.entrySet()) {
+
+            SolidDrawListShape.Builder b = entry.getKey();
+            List<Short> dla = entry.getValue();
+
+            b.setVertexBuffer(mVertexBuffer);
+
+            int indexList[] = new int[dla.size()];
+            int k = 0;
+            for (Short s : dla) {
+                indexList[k++] = s + offset;
+            }
+            b.setDrawList(indexList);
+            mShapes.add(b.build());
+            offset += new HashSet<>(dla).size();
+        }
+    }
+
+}

@@ -15,7 +15,6 @@ import java.nio.ShortBuffer;
 @RunWith(MockitoJUnitRunner.class)
 public class SolidDrawListShapeTest {
     private static final float FLOAT_EPSILON = 0.005f;
-    private final int VERTEX_COUNT = 69;
 
     private static final int
             RED = 200,
@@ -23,16 +22,16 @@ public class SolidDrawListShapeTest {
             BLUE = 166,
             ALPHA = 255;
 
-    private static final float COLORS[] = new float[]{
+    private static final GLColor COLORS = new GLColor(
             RED / 255f,
             GREEN / 255f,
             BLUE / 255f,
-            1f
-    };
+            ALPHA / 255f
+    );
 
     private PointF[] mVertices;
     private SolidDrawListShape.Builder mBuilder;
-    private short[] mDrawList;
+    private int[] mDrawList;
 
     @Mock
     private ShortBuffer mDrawListBuffer;
@@ -51,56 +50,74 @@ public class SolidDrawListShapeTest {
                 new PointF(1f, 1f),
         };
 
-        mDrawList = new short[]{0, 1, 3,};
+        mDrawList = new int[]{0, 1, 3,};
     }
 
     @Test
-    public void testBuilderPutVertices() {
+    public void testBuilderBuildVertices() {
         mBuilder.putVertices(mVertices);
+        SolidDrawListShape shape = mBuilder.build();
 
-        FloatBuffer buffer = mBuilder.getVertexBuffer();
+        FloatBuffer buffer = mBuilder.mVertexBuffer;
+        buffer.position(0);
 
         for (PointF vertex : mVertices) {
             Assert.assertEquals(vertex.x, buffer.get(), FLOAT_EPSILON);
             Assert.assertEquals(vertex.y, buffer.get(), FLOAT_EPSILON);
+            Assert.assertEquals(0f, buffer.get(), FLOAT_EPSILON);
+        }
+
+        buffer = shape.mVertexBuffer;
+        buffer.position(0);
+
+        for (PointF vertex : mVertices) {
+            Assert.assertEquals(vertex.x, buffer.get(), FLOAT_EPSILON);
+            Assert.assertEquals(vertex.y, buffer.get(), FLOAT_EPSILON);
+            Assert.assertEquals(0f, buffer.get(), FLOAT_EPSILON);
         }
     }
 
     @Test
-    public void testBuilderPutDrawList() {
+    public void testBuildDrawList() {
         mBuilder.setDrawList(mDrawList);
+        SolidDrawListShape shape = mBuilder.build();
 
-        Assert.assertEquals(mDrawList.length, mBuilder.getVertexCount());
+        ShortBuffer buffer = mBuilder.mDrawListBuffer;
+        buffer.position(0);
 
-        ShortBuffer buffer = mBuilder.getDrawListBuffer();
+        for (int idx : mDrawList) {
+            Assert.assertEquals((short) idx, buffer.get());
+        }
 
-        for (short idx : mDrawList) {
-            Assert.assertEquals(idx, buffer.get());
+        buffer = shape.mDrawListBuffer;
+        buffer.position(0);
+
+        for (int idx : mDrawList) {
+            Assert.assertEquals((short) idx, buffer.get());
         }
     }
 
     @Test
     public void testBuilderSetColor() {
-        mBuilder.setColor(RED, GREEN, BLUE, ALPHA);
-
-        float[] color = mBuilder.getColor();
-
-        for(int k = 0; k < 4; k++){
-            Assert.assertEquals(COLORS[k], color[k], FLOAT_EPSILON);
-        }
+        mBuilder.setColor(COLORS);
+        Assert.assertArrayEquals(COLORS.rgbaArray(), mBuilder.mColor, FLOAT_EPSILON);
     }
 
     @Test
-    public void testBuilderBuild(){
-        SolidDrawListShape shape = mBuilder.setDrawListBuffer(mDrawListBuffer, VERTEX_COUNT)
+    public void testBuilderBuild() {
+        SolidDrawListShape shape = mBuilder.setDrawListBuffer(mDrawListBuffer)
                 .setVertexBuffer(mVertexBuffer)
-                .setColor(COLORS[0], COLORS[1], COLORS[2], COLORS[3])
+                .setColor(COLORS)
                 .build();
 
         Assert.assertEquals(mDrawListBuffer, shape.mDrawListBuffer);
-        Assert.assertEquals(VERTEX_COUNT, shape.mVertexCount);
         Assert.assertEquals(mVertexBuffer, shape.mVertexBuffer);
-        Assert.assertArrayEquals(COLORS, shape.mColor, FLOAT_EPSILON);
+        Assert.assertArrayEquals(COLORS.rgbaArray(), shape.mColor, FLOAT_EPSILON);
     }
 
+    @Test
+    public void testIsNotTextured() {
+        SolidDrawListShape shape = new SolidDrawListShape.Builder().build();
+        Assert.assertFalse(shape.isTextured());
+    }
 }

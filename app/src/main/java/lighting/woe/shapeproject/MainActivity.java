@@ -6,6 +6,7 @@ import android.content.pm.ConfigurationInfo;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PointF;
+import android.graphics.RectF;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Bundle;
@@ -13,10 +14,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.TypedValue;
 
+import lighting.woe.shapeproject.shapes.GLColor;
+import lighting.woe.shapeproject.shapes.GLShape;
+import lighting.woe.shapeproject.shapes.ShapeBuffer;
 import lighting.woe.shapeproject.shapes.SolidDrawListShape;
 import lighting.woe.shapeproject.shapes.Triangle;
 
-import static android.graphics.Color.MAGENTA;
+import static android.graphics.Color.*;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -48,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
         mGlSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
         setContentView(mGlSurfaceView);
+        final ShapeBuffer shapeBuffer = new ShapeBuffer();
 
 
         mGlSurfaceView.post(new Runnable() {
@@ -70,20 +75,15 @@ public class MainActivity extends AppCompatActivity {
                                 new PointF(0, 0),
                                 new PointF(virtualWidth, virtualHeight),
                                 new PointF(virtualWidth, 0))
-                        .setDrawList(
-                                (short) 0, (short) 1, (short) 2, (short) 2, (short) 1, (short) 3)
-                        .setColor(
-                                Color.red(MAGENTA),
-                                Color.green(MAGENTA),
-                                Color.blue(MAGENTA),
-                                255)
+                        .setDrawList(0, 1, 2, 2, 1, 3)
+                        .setColor(new GLColor(Color.GREEN))
                         .build());
 
                 mRenderer.addShape(new Triangle(
                         new PointF(0, 0),
                         new PointF(virtualWidth / 2, virtualHeight),
                         new PointF(virtualWidth, 0),
-                        Color.argb(255, 200, 150, 0)));
+                        argb(255, 200, 150, 0)));
 
             }
         });
