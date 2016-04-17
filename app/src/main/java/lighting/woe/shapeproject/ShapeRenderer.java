@@ -2,7 +2,6 @@ package lighting.woe.shapeproject;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
@@ -56,8 +55,8 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
             mTextureProgram = TextureProgram.buildShader(
                     mContext, R.raw.texture_vertex, R.raw.texture_fragment);
 
-            synchronized (mPendingTextures){
-                for(Map.Entry<String, Bitmap> e : mPendingTextures.entrySet()){
+            synchronized (mPendingTextures) {
+                for (Map.Entry<String, Bitmap> e : mPendingTextures.entrySet()) {
                     loadTexture(e.getValue(), e.getKey());
                 }
                 mPendingTextures.clear();
