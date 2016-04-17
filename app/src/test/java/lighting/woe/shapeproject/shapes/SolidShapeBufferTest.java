@@ -12,7 +12,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import java.nio.FloatBuffer;
-import java.util.ArrayList;
+import java.util.List;
 
 @Config(manifest = Config.NONE)
 @RunWith(RobolectricTestRunner.class)
@@ -43,7 +43,7 @@ public class SolidShapeBufferTest {
         Assert.assertNotEquals(0f, mRectangle.width(), FLOAT_EPSILON);
         Assert.assertNotEquals(0f, mRectangle.height(), FLOAT_EPSILON);
         mBuffer.addRectangle(mRectangle, mColor);
-        ArrayList<SolidDrawListShape> shapes = mBuffer.getShapes();
+        List<SolidDrawListShape> shapes = mBuffer.getShapes();
 
         SolidDrawListShape shape = shapes.get(0);
         Assert.assertEquals(1, shapes.size());
@@ -102,7 +102,7 @@ public class SolidShapeBufferTest {
                 mTrianglePoints[0], mTrianglePoints[1], mTrianglePoints[2],
                 new GLColor(Color.BLUE));
 
-        ArrayList<SolidDrawListShape> shapes = mBuffer.getShapes();
+        List<SolidDrawListShape> shapes = mBuffer.getShapes();
         Assert.assertEquals(1, shapes.size());
 
         SolidDrawListShape shape = shapes.get(0);
@@ -119,7 +119,7 @@ public class SolidShapeBufferTest {
         }
 
         shape.mDrawListBuffer.position(0);
-        for(k = 0; k < 3; k++){
+        for (k = 0; k < 3; k++) {
             Assert.assertEquals(k, shape.mDrawListBuffer.get());
         }
     }
