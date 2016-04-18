@@ -1,32 +1,43 @@
 package lighting.woe.shapeproject;
 
 import android.app.ActivityManager;
+import android.app.Service;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.ConfigurationInfo;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.StrictMode;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.TypedValue;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 import lighting.woe.shapeproject.shapes.GLColor;
+import lighting.woe.shapeproject.shapes.GLShape;
 import lighting.woe.shapeproject.shapes.SolidShapeBuffer;
 import lighting.woe.shapeproject.shapes.TextureShapeBuffer;
 
 import static android.graphics.Color.MAGENTA;
 
-public class MainActivity extends AppCompatActivity {
+
+public class MainActivity extends AppCompatActivity implements ServiceConnection {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -34,6 +45,9 @@ public class MainActivity extends AppCompatActivity {
     private ShapeRenderer mRenderer;
     private BroadcastReceiver mRendererReadyReceiver;
     private BroadcastReceiver mTextureReadyReceiver;
+    private TextureService.Binder mTextureBinder;
+    private ArrayList<GLShape> mShapes = new ArrayList<>();
+    private final Map<String, Integer> mPendingTextures = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,33 +90,10 @@ public class MainActivity extends AppCompatActivity {
                         new PointF(0, 0),
                         new PointF(virtualWidth / 2, virtualHeight),
                         new PointF(virtualWidth, 0),
-                        new GLColor(Color.GRAY));
+                        new GLColor(Color.BLUE));
+        mShapes.addAll(gradientShapeBuffer.getShapes());
 
-        final TextureShapeBuffer textureShapeBuffer = new TextureShapeBuffer()
-                .addTile(Constants.TEX_WELF,
-                        new RectF(
-                                virtualWidth / 8, virtualHeight * 3 / 8,
-                                virtualWidth * 3 / 8, virtualHeight / 8))
-                .addTile(Constants.TEX_AWESUM,
-                        new RectF(
-                                virtualWidth * 5 / 8, virtualHeight * 3 / 8,
-                                virtualWidth * 7 / 8, virtualHeight / 8));
-
-        final Bitmap wolf = BitmapFactory.decodeResource(getResources(), R.drawable.insanitywelf);
-        final Bitmap awe = BitmapFactory.decodeResource(getResources(), R.drawable.awesome);
-
-        mGlSurfaceView.post(new Runnable() {
-            @Override
-            public void run() {
-                Log.v(TAG, "Doing shape adding task");
-                mRenderer.loadTexture(wolf, Constants.TEX_WELF);
-                mRenderer.loadTexture(awe, Constants.TEX_AWESUM);
-                mRenderer.addShapes(gradientShapeBuffer.getShapes());
-                mRenderer.addShapes(textureShapeBuffer.getShapes());
-                Log.v(TAG, "done adding shapes");
-                mGlSurfaceView.requestRender();
-            }
-        });
+        final TextureShapeBuffer textureShapeBuffer = new TextureShapeBuffer();
 
         mRendererReadyReceiver = new BroadcastReceiver() {
             @Override
@@ -112,6 +103,8 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
+        mRenderer.setShapes(mShapes);
+
         mTextureReadyReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -120,18 +113,79 @@ public class MainActivity extends AppCompatActivity {
 
                 switch (texName) {
                     case Constants.TEX_WELF:
-                        wolf.recycle();
+                        textureShapeBuffer
+                                .addTile(Constants.TEX_WELF,
+                                        new RectF(
+                                                virtualWidth / 8, virtualHeight * 3 / 8,
+                                                virtualWidth * 3 / 8, virtualHeight / 8));
                         break;
                     case Constants.TEX_AWESUM:
-                        awe.recycle();
+                        textureShapeBuffer
+                                .addTile(Constants.TEX_AWESUM,
+                                        new RectF(
+                                                virtualWidth * 5 / 8, virtualHeight * 3 / 8,
+                                                virtualWidth * 7 / 8, virtualHeight / 8));
                         break;
                 }
+
+                mShapes = Lists.newArrayList(
+                        Iterables.concat(
+                                gradientShapeBuffer.getShapes(), textureShapeBuffer.getShapes()));
+
+                mRenderer.setShapes(mShapes);
                 mGlSurfaceView.requestRender();
             }
         };
 
+        Intent textureIntent = new Intent(this, TextureService.class);
+        startService(textureIntent);
+        bindService(textureIntent, this, Service.BIND_AUTO_CREATE);
+        uploadTexture(R.drawable.awesome, Constants.TEX_AWESUM);
+        uploadTexture(R.drawable.insanitywelf, Constants.TEX_WELF);
     }
 
+    private void uploadTexture(int id, String name) {
+        synchronized (mPendingTextures) {
+            if (null == mTextureBinder) {
+                mPendingTextures.put(name, id);
+            } else {
+                mTextureBinder.uploadTexture(name, id, mGlSurfaceView, mRenderer);
+            }
+        }
+    }
+
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder service) {
+        if (TextureService.class.getName().equals(name.getClassName())) {
+            synchronized (mPendingTextures) {
+                Log.v(TAG, "Bound TextureService");
+                mTextureBinder = (TextureService.Binder) service;
+
+                if (!mPendingTextures.isEmpty()) {
+                    Log.v(TAG, "Uploading textures");
+                    for (Map.Entry<String, Integer> pendingTexture : mPendingTextures.entrySet()) {
+                        mTextureBinder.uploadTexture(
+                                pendingTexture.getKey(), pendingTexture.getValue(),
+                                mGlSurfaceView, mRenderer);
+                    }
+                    mPendingTextures.clear();
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName name) {
+        if (TextureService.class.getName().equals(name.getClassName())) {
+            mTextureBinder = null;
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unbindService(this);
+    }
 
     @Override
     protected void onResume() {

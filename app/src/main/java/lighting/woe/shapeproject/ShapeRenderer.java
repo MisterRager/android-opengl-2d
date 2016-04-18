@@ -25,7 +25,7 @@ import lighting.woe.shapeproject.program.SolidProgram;
 import lighting.woe.shapeproject.program.TextureProgram;
 import lighting.woe.shapeproject.shapes.GLShape;
 
-public class ShapeRenderer implements GLSurfaceView.Renderer {
+public class ShapeRenderer implements GLSurfaceView.Renderer, TextureService.GLTextureLoader {
     private static final String TAG = ShapeRenderer.class.getSimpleName();
 
     public static final String ACTION_RENDER_READY = "action.rendererIsReady";
@@ -173,17 +173,21 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
     public void onPause(){
     }
 
-    public ShapeRenderer addShape(GLShape shape) {
-        mShapes.add(shape);
-        return this;
-    }
-
-    public ShapeRenderer addShapes(Collection<? extends GLShape> shapes) {
+    public ShapeRenderer setShapes(Collection<? extends GLShape> shapes) {
         mShapes.addAll(shapes);
         return this;
     }
 
+    @Override
     public int loadTexture(Bitmap bmp, final String textureName) {
+        if(null == bmp){
+            throw new IllegalArgumentException("Texture bitmap cannot be null!");
+        }
+
+        if(bmp.isRecycled()){
+            throw new IllegalArgumentException("Texture bitmap cannot already be recycled");
+        }
+
         synchronized (mPendingTextures) {
             if (null != mTextureProgram) {
                 int result = mTextureProgram.uploadTexture(textureName, bmp);
@@ -198,6 +202,7 @@ public class ShapeRenderer implements GLSurfaceView.Renderer {
                     });
                 }
             } else {
+                Log.d(TAG, "Program not ready - texture is pending: " + textureName);
                 mPendingTextures.put(textureName, bmp);
             }
             return 0;

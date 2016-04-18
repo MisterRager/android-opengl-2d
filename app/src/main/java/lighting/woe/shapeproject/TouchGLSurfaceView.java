@@ -7,6 +7,7 @@ import android.view.MotionEvent;
 
 public class TouchGLSurfaceView extends GLSurfaceView {
     private static final String TAG = TouchGLSurfaceView.class.getSimpleName();
+
     private float mLastDownX, mLastDownY, mLastX, mLastY;
     private boolean mIsDragging;
     private ShapeRenderer mRenderer;
@@ -36,7 +37,7 @@ public class TouchGLSurfaceView extends GLSurfaceView {
                     final float dx = x - mLastX, dy = y - mLastY;
                     Log.v(TAG, String.format("Motion distance: [%.9f, %.9f]", dx, dy));
 
-                    post(new Runnable() {
+                    queueEvent(new Runnable() {
                         @Override
                         public void run() {
                             mRenderer.moveCamera(dx, -dy);
@@ -60,4 +61,5 @@ public class TouchGLSurfaceView extends GLSurfaceView {
         mRenderer = (ShapeRenderer) renderer;
         super.setRenderer(renderer);
     }
+
 }

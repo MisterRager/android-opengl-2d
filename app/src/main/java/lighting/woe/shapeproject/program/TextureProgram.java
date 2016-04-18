@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -12,6 +13,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class TextureProgram extends AbstractProgram {
+    private static final String TAG = TextureProgram.class.getSimpleName();
+
     private final int mPositionHandle;
     private final int mMVPMatrixHandle;
     private final int mTexCoordHandle;
@@ -30,9 +33,14 @@ public class TextureProgram extends AbstractProgram {
 
     public int uploadTexture(String name, Bitmap bmp) {
         synchronized (mTextureHandles) {
-            if (!mTextureHandles.containsKey(name)) {
+            if (!mTextureHandles.containsKey(name) || mTextureHandles.get(name) == 0) {
                 int[] textureHandle = new int[1];
                 GLES20.glGenTextures(1, textureHandle, 0);
+
+                if(0 == textureHandle[0]){
+                    Log.e(TAG, "GL Error: " + GLES20.glGetError());
+                    return 0;
+                }
 
                 // Bind texture to texturename
                 GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + mTextureHandles.size());
